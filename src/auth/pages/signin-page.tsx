@@ -73,8 +73,8 @@ export function SignInPage() {
   const form = useForm<SigninSchemaType>({
     resolver: zodResolver(getSigninSchema()),
     defaultValues: {
-      email: 'demo@kt.com',
-      password: 'demo123',
+      email: '',
+      password: '',
       rememberMe: true,
     },
   });
@@ -140,8 +140,18 @@ export function SignInPage() {
             <AlertCircle className="text-primary" />
           </AlertIcon>
           <AlertTitle className="text-accent-foreground">
-            Use <strong>demo@kt.com</strong> username and {` `}
-            <strong>demo123</strong> password for demo access.
+            Use <strong>admin@nhaka-stone.com</strong> username and {` `}
+            <strong>demo123</strong> password for admin demo access.
+          </AlertTitle>
+        </Alert>
+
+        <Alert appearance="light" size="sm" close={false}>
+          <AlertIcon>
+            <AlertCircle className="text-primary" />
+          </AlertIcon>
+          <AlertTitle className="text-accent-foreground">
+            Use <strong>client@nhaka-stone.com</strong> username and {` `}
+            <strong>demo123</strong> password for client demo access.
           </AlertTitle>
         </Alert>
 
