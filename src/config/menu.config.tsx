@@ -358,8 +358,8 @@ export const MENU_SIDEBAR_CUSTOM: MenuConfig = [
     icon: Users,
     children: [
       { title: 'Home', path: '/store-client/home' },
-      { title: 'Memorial Reviews', path: '/store-client/memorial-reviews' },
       { title: 'My Orders', path: '/store-client/my-orders' },
+      { title: 'Memorial Reviews', path: '/store-client/memorial-reviews' },
       { title: 'Order Receipt', path: '/store-client/order-receipt' },
     ],
   },

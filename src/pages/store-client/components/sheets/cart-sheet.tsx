@@ -31,6 +31,8 @@ export function StoreClientCartSheet({
   const [paymentMethod, setPaymentMethod] = useState<'credit-card' | 'paypal' | 'google-pay' | 'apple-pay'>('credit-card');
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const [step, setStep] = useState(1);
+
   // Delivery form state - pre-filled with user data
   const [deliveryInfo, setDeliveryInfo] = useState({
     fullName: '',
@@ -68,6 +70,7 @@ export function StoreClientCartSheet({
   const handleRemoveItem = () => {
     if (cartItem) {
       removeCartItem(cartItem.productId);
+      setStep(1); // Reset step if item removed (and cart becomes empty)
     }
   };
 
@@ -75,14 +78,21 @@ export function StoreClientCartSheet({
     setDeliveryInfo(prev => ({ ...prev, [field]: value }));
   };
 
-  const handlePlaceOrder = async () => {
-    if (!cartItem) return;
-
-    // Basic validation
+  const handleNextStep = () => {
+    // Basic validation for delivery info
     if (!deliveryInfo.fullName || !deliveryInfo.email || !deliveryInfo.phone || !deliveryInfo.address) {
       alert('Please fill in all required delivery fields.');
       return;
     }
+    setStep(2);
+  };
+
+  const handleBackStep = () => {
+    setStep(1);
+  };
+
+  const handlePlaceOrder = async () => {
+    if (!cartItem) return;
 
     setIsProcessing(true);
 
@@ -182,7 +192,7 @@ export function StoreClientCartSheet({
       // Close sheet
       onOpenChange();
 
-      // Reset form
+      // Reset form and step
       setDeliveryInfo({
         fullName: '',
         email: '',
@@ -192,6 +202,7 @@ export function StoreClientCartSheet({
         state: '',
         zipCode: '',
       });
+      setStep(1);
     } catch (error: any) {
       alert(error.response?.data?.message || 'Order failed. Something went wrong. Please try again.');
     } finally {
@@ -203,7 +214,9 @@ export function StoreClientCartSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:w-[600px] sm:max-w-none inset-5 start-auto h-auto rounded-lg p-0 sm:max-w-none [&_[data-slot=sheet-close]]:top-4.5 [&_[data-slot=sheet-close]]:end-5">
         <SheetHeader className="border-b py-3.5 px-5 border-border">
-          <SheetTitle>Shopping Cart</SheetTitle>
+          <SheetTitle>
+            Shopping Cart {step === 2 && '- Payment'}
+          </SheetTitle>
         </SheetHeader>
         <SheetBody className="px-5 py-0">
           <ScrollArea className="h-[calc(100dvh-12rem)] pe-3 -me-3">
@@ -264,165 +277,170 @@ export function StoreClientCartSheet({
                   </div>
                 </div>
 
-                {/* Delivery Form */}
-                <Card className="mt-6">
-                  <CardContent className="p-4 space-y-4">
-                    <h3 className="text-base font-semibold">Delivery Information</h3>
+                {/* Step 1: Delivery Form */}
+                {step === 1 && (
+                  <Card className="mt-6">
+                    <CardContent className="p-4 space-y-4">
+                      <h3 className="text-base font-semibold">Delivery Information</h3>
 
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="col-span-2">
-                        <Label htmlFor="fullName" className="text-sm">Full Name</Label>
-                        <Input
-                          id="fullName"
-                          placeholder="Nhaka Stone"
-                          className="mt-1"
-                          value={deliveryInfo.fullName}
-                          onChange={(e) => handleDeliveryChange('fullName', e.target.value)}
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="email" className="text-sm">Email</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="user@nhaka-stone.com"
-                          className="mt-1"
-                          value={deliveryInfo.email}
-                          onChange={(e) => handleDeliveryChange('email', e.target.value)}
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="phone" className="text-sm">Phone Number</Label>
-                        <Input
-                          id="phone"
-                          type="tel"
-                          placeholder="+263 777 777 777"
-                          className="mt-1"
-                          value={deliveryInfo.phone}
-                          onChange={(e) => handleDeliveryChange('phone', e.target.value)}
-                        />
-                      </div>
-
-                      <div className="col-span-2">
-                        <Label htmlFor="address" className="text-sm">Address</Label>
-                        <Input
-                          id="address"
-                          placeholder="123 Main St, Zengeza"
-                          className="mt-1"
-                          value={deliveryInfo.address}
-                          onChange={(e) => handleDeliveryChange('address', e.target.value)}
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="city" className="text-sm">City</Label>
-                        <Input
-                          id="city"
-                          placeholder="Chitungwiza"
-                          className="mt-1"
-                          value={deliveryInfo.city}
-                          onChange={(e) => handleDeliveryChange('city', e.target.value)}
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="state" className="text-sm">State</Label>
-                        <Input
-                          id="state"
-                          placeholder="Zimbabwe"
-                          className="mt-1"
-                          value={deliveryInfo.state}
-                          onChange={(e) => handleDeliveryChange('state', e.target.value)}
-                        />
-                      </div>
-
-                      <div className="col-span-2">
-                        <Label htmlFor="zip" className="text-sm">Zip Code</Label>
-                        <Input
-                          id="zip"
-                          placeholder="10001"
-                          className="mt-1"
-                          value={deliveryInfo.zipCode}
-                          onChange={(e) => handleDeliveryChange('zipCode', e.target.value)}
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Payment Options */}
-                <Card className="mt-4">
-                  <CardContent className="p-4 space-y-4">
-                    <h3 className="text-base font-semibold">Payment Method</h3>
-
-                    <RadioGroup value={paymentMethod} onValueChange={(value) => setPaymentMethod(value as typeof paymentMethod)}>
-                      <div className="space-y-3">
-                        {/* Credit Card */}
-                        <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent/50 cursor-pointer">
-                          <RadioGroupItem value="credit-card" id="credit-card" />
-                          <Label htmlFor="credit-card" className="flex items-center gap-2 cursor-pointer flex-1">
-                            <CreditCard className="w-5 h-5" />
-                            <span>Credit Card</span>
-                          </Label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="col-span-2">
+                          <Label htmlFor="fullName" className="text-sm">Full Name</Label>
+                          <Input
+                            id="fullName"
+                            placeholder="Nhaka Stone"
+                            className="mt-1"
+                            value={deliveryInfo.fullName}
+                            onChange={(e) => handleDeliveryChange('fullName', e.target.value)}
+                          />
                         </div>
 
-                        {paymentMethod === 'credit-card' && (
-                          <div className="ml-6 space-y-3 pt-2">
-                            <div>
-                              <Label htmlFor="cardNumber" className="text-sm">Card Number</Label>
-                              <Input id="cardNumber" placeholder="1234 5678 9012 3456" className="mt-1" />
-                            </div>
-                            <div className="grid grid-cols-2 gap-3">
-                              <div>
-                                <Label htmlFor="expiry" className="text-sm">Expiry Date</Label>
-                                <Input id="expiry" placeholder="MM/YY" className="mt-1" />
-                              </div>
-                              <div>
-                                <Label htmlFor="cvv" className="text-sm">CVV</Label>
-                                <Input id="cvv" placeholder="123" className="mt-1" />
-                              </div>
-                            </div>
+                        <div>
+                          <Label htmlFor="email" className="text-sm">Email</Label>
+                          <Input
+                            id="email"
+                            type="email"
+                            placeholder="user@nhaka-stone.com"
+                            className="mt-1"
+                            value={deliveryInfo.email}
+                            onChange={(e) => handleDeliveryChange('email', e.target.value)}
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="phone" className="text-sm">Phone Number</Label>
+                          <Input
+                            id="phone"
+                            type="tel"
+                            placeholder="+263 777 777 777"
+                            className="mt-1"
+                            value={deliveryInfo.phone}
+                            onChange={(e) => handleDeliveryChange('phone', e.target.value)}
+                          />
+                        </div>
+
+                        <div className="col-span-2">
+                          <Label htmlFor="address" className="text-sm">Address</Label>
+                          <Input
+                            id="address"
+                            placeholder="123 Main St, Zengeza"
+                            className="mt-1"
+                            value={deliveryInfo.address}
+                            onChange={(e) => handleDeliveryChange('address', e.target.value)}
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="city" className="text-sm">City</Label>
+                          <Input
+                            id="city"
+                            placeholder="Chitungwiza"
+                            className="mt-1"
+                            value={deliveryInfo.city}
+                            onChange={(e) => handleDeliveryChange('city', e.target.value)}
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="state" className="text-sm">State</Label>
+                          <Input
+                            id="state"
+                            placeholder="Zimbabwe"
+                            className="mt-1"
+                            value={deliveryInfo.state}
+                            onChange={(e) => handleDeliveryChange('state', e.target.value)}
+                          />
+                        </div>
+
+                        <div className="col-span-2">
+                          <Label htmlFor="zip" className="text-sm">Zip Code</Label>
+                          <Input
+                            id="zip"
+                            placeholder="10001"
+                            className="mt-1"
+                            value={deliveryInfo.zipCode}
+                            onChange={(e) => handleDeliveryChange('zipCode', e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Step 2: Payment Options */}
+                {step === 2 && (
+                  <Card className="mt-4">
+                    <CardContent className="p-4 space-y-4">
+                      <h3 className="text-base font-semibold">Payment Method</h3>
+
+                      <RadioGroup value={paymentMethod} onValueChange={(value) => setPaymentMethod(value as typeof paymentMethod)}>
+                        <div className="space-y-3">
+                          {/* Credit Card */}
+                          <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent/50 cursor-pointer">
+                            <RadioGroupItem value="credit-card" id="credit-card" />
+                            <Label htmlFor="credit-card" className="flex items-center gap-2 cursor-pointer flex-1">
+                              <CreditCard className="w-5 h-5" />
+                              <span>Credit Card</span>
+                            </Label>
                           </div>
-                        )}
 
-                        {/* PayPal */}
-                        <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent/50 cursor-pointer">
-                          <RadioGroupItem value="paypal" id="paypal" />
-                          <Label htmlFor="paypal" className="flex items-center gap-2 cursor-pointer flex-1">
-                            <span className="text-lg">💳</span>
-                            <span>PayPal</span>
-                          </Label>
+                          {paymentMethod === 'credit-card' && (
+                            <div className="ml-6 space-y-3 pt-2">
+                              <div>
+                                <Label htmlFor="cardNumber" className="text-sm">Card Number</Label>
+                                <Input id="cardNumber" placeholder="1234 5678 9012 3456" className="mt-1" />
+                              </div>
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <Label htmlFor="expiry" className="text-sm">Expiry Date</Label>
+                                  <Input id="expiry" placeholder="MM/YY" className="mt-1" />
+                                </div>
+                                <div>
+                                  <Label htmlFor="cvv" className="text-sm">CVV</Label>
+                                  <Input id="cvv" placeholder="123" className="mt-1" />
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* PayPal */}
+                          <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent/50 cursor-pointer">
+                            <RadioGroupItem value="paypal" id="paypal" />
+                            <Label htmlFor="paypal" className="flex items-center gap-2 cursor-pointer flex-1">
+                              <span className="text-lg">💳</span>
+                              <span>PayPal</span>
+                            </Label>
+                          </div>
+
+                          {/* Google Pay */}
+                          <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent/50 cursor-pointer">
+                            <RadioGroupItem value="google-pay" id="google-pay" />
+                            <Label htmlFor="google-pay" className="flex items-center gap-2 cursor-pointer flex-1">
+                              <span className="text-lg">🅖</span>
+                              <span>Google Pay</span>
+                            </Label>
+                          </div>
+
+                          {/* Apple Pay */}
+                          <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent/50 cursor-pointer">
+                            <RadioGroupItem value="apple-pay" id="apple-pay" />
+                            <Label htmlFor="apple-pay" className="flex items-center gap-2 cursor-pointer flex-1">
+                              <span className="text-lg"></span>
+                              <span>Apple Pay</span>
+                            </Label>
+                          </div>
                         </div>
+                      </RadioGroup>
+                    </CardContent>
+                  </Card>
+                )}
 
-                        {/* Google Pay */}
-                        <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent/50 cursor-pointer">
-                          <RadioGroupItem value="google-pay" id="google-pay" />
-                          <Label htmlFor="google-pay" className="flex items-center gap-2 cursor-pointer flex-1">
-                            <span className="text-lg">🅖</span>
-                            <span>Google Pay</span>
-                          </Label>
-                        </div>
-
-                        {/* Apple Pay */}
-                        <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent/50 cursor-pointer">
-                          <RadioGroupItem value="apple-pay" id="apple-pay" />
-                          <Label htmlFor="apple-pay" className="flex items-center gap-2 cursor-pointer flex-1">
-                            <span className="text-lg"></span>
-                            <span>Apple Pay</span>
-                          </Label>
-                        </div>
-                      </div>
-                    </RadioGroup>
-                  </CardContent>
-                </Card>
-
-                {/* Subtotal */}
+                {/* Subtotal - Always visible 
                 <div className="flex items-center justify-between bg-accent/50 rounded-lg p-3 mt-4">
                   <span className="text-sm font-medium">Total ({cartCount} items)</span>
                   <span className="text-lg font-bold">${cartTotal.toFixed(2)}</span>
                 </div>
+                */}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -434,25 +452,36 @@ export function StoreClientCartSheet({
           </ScrollArea>
         </SheetBody>
         <SheetFooter className="flex-row border-t py-3.5 px-5 border-border gap-2">
-          <Button variant="outline" onClick={onOpenChange}>Continue Shopping</Button>
-          <Button
-            variant="primary"
-            className="grow"
-            disabled={!cartItem || isProcessing}
-            onClick={handlePlaceOrder}
-          >
-            {isProcessing ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Processing...
-              </>
-            ) : (
-              <>
-                <ShoppingCart />
-                Place Order
-              </>
-            )}
-          </Button>
+          {step === 1 ? (
+            <>
+              <Button variant="outline" onClick={onOpenChange}>Continue Shopping</Button>
+              <Button variant="primary" className="grow" disabled={!cartItem} onClick={handleNextStep}>
+                Next
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" onClick={handleBackStep} disabled={isProcessing}>Back</Button>
+              <Button
+                variant="primary"
+                className="grow"
+                disabled={isProcessing}
+                onClick={handlePlaceOrder}
+              >
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart />
+                    Place Order
+                  </>
+                )}
+              </Button>
+            </>
+          )}
         </SheetFooter>
       </SheetContent>
     </Sheet>

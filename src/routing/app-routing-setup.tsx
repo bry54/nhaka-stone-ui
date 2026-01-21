@@ -6,6 +6,7 @@ import { Demo2Layout } from '@/layouts/demo2/layout';
 import { DashboardPage } from '@/pages/store-admin';
 
 import {
+  MyOrdersPage,
   StoreClientPage,
 } from '@/pages/store-client';
 import { PublicRouting } from '@/public/public-routing';
@@ -30,6 +31,7 @@ export function AppRoutingSetup() {
         <Route element={<Demo2Layout />}>
           {/* Authenticated users accessing root are redirected to home */}
           <Route path="/store-client/home" element={<StoreClientPage />} />
+          <Route path="/store-client/my-orders" element={<MyOrdersPage />} />
           <Route path="/store-admin/home" element={<DashboardPage />} />
         </Route>
       </Route>
