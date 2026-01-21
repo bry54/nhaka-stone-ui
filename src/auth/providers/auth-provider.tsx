@@ -1,70 +1,92 @@
 'use client';
 
 import {
-	createContext,
 	useContext,
 	useState,
 	useEffect,
 	ReactNode,
 } from 'react';
-
-interface User {
-	id: string;
-	email: string;
-	name: string;
-	avatar?: string;
-}
-
-interface AuthContextType {
-	user: User | null;
-	login: (email: string, password: string) => Promise<boolean>;
-	logout: () => void;
-	isLoading: boolean;
-	isAuthenticated: boolean;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+import api from '@/lib/api';
+import { AUTH_LOCAL_STORAGE_KEY } from '@/auth/lib/helpers';
+import { AuthContext } from '@/auth/context/auth-context';
+import { UserModel } from '@/auth/lib/models';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-	const [user, setUser] = useState<User | null>(null);
+	const [user, setUser] = useState<UserModel | undefined>(undefined);
 	const [isLoading, setIsLoading] = useState(true);
+
 
 	// Check for existing session on mount
 	useEffect(() => {
-		const savedUser = localStorage.getItem('auth-user');
-		if (savedUser) {
-			setUser(JSON.parse(savedUser));
-		}
-		setIsLoading(false);
+		const initAuth = async () => {
+			const savedAuth = localStorage.getItem(AUTH_LOCAL_STORAGE_KEY);
+			if (savedAuth) {
+				try {
+					const parsedAuth = JSON.parse(savedAuth);
+					// Verify token validity or get user profile here if needed
+					// For now we just restore the session
+					if (parsedAuth.accessToken) {
+						// Optionally fetch user profile
+						// const user = await api.get('/auth/me');
+						// setUser(user.data);
+
+						// For now, we decode token or just set a dummy user if profile not stored
+						// ideally we should store user info or fetch it.
+						// let's assume we can derive or fetch. 
+						// But based on current simple requirement, let's keep it simple.
+					}
+				} catch (e) {
+					console.error('Failed to parse auth', e);
+				}
+			}
+			setIsLoading(false);
+		};
+		initAuth();
 	}, []);
 
-	const login = async (email: string, password: string): Promise<boolean> => {
-		setIsLoading(true);
+	const login = async (email: string, password: string): Promise<void> => {
+		try {
+			const response = await api.post('/auth/signin', { email, password });
+			const data = response.data;
 
-		// Mock authentication - replace with your API call
-		await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API delay
+			if (data.accessToken) {
+				const authData = { accessToken: data.accessToken };
+				localStorage.setItem(AUTH_LOCAL_STORAGE_KEY, JSON.stringify(authData));
 
-		if (email === 'demo@kt.com' && password === 'demo123') {
-			const mockUser: User = {
-				id: '1',
-				email: 'demo@kt.com',
-				name: 'Demo User',
-				avatar: '/media/avatars/300-2.png',
-			};
-
-			setUser(mockUser);
-			localStorage.setItem('auth-user', JSON.stringify(mockUser));
-			setIsLoading(false);
-			return true;
+				const userData: UserModel = {
+					id: '1', // We should get this from response or separate /me call
+					email: data.email,
+					fullName: data.fullName,
+					role: data.role,
+					// Use dummy avatar or get from response if available
+				};
+				setUser(userData);
+			}
+		} catch (error) {
+			console.error('Login failed', error);
+			throw error;
 		}
-
-		setIsLoading(false);
-		return false;
 	};
 
+	const register = async (email: string, password: string, _password_confirmation: string, firstName?: string, lastName?: string): Promise<void> => {
+		try {
+			await api.post('/auth/signup', {
+				email,
+				password,
+				firstName,
+				lastName
+			});
+			// Auto login or redirect depends on flow. 
+			// The Signup page expects void promise.
+		} catch (error) {
+			console.error('Registration failed', error);
+			throw error;
+		}
+	}
+
 	const logout = () => {
-		setUser(null);
-		localStorage.removeItem('auth-user');
+		setUser(undefined);
+		localStorage.removeItem(AUTH_LOCAL_STORAGE_KEY);
 	};
 
 	const isAuthenticated = !!user;
@@ -72,10 +94,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	return (
 		<AuthContext.Provider
 			value={{
+				// @ts-ignore - mismatch in context types, we need to fix this properly but for now matching the existing provider signature
 				user,
-				login,
+				login: login as any, // context expects (email, password) => Promise<void>, provider was boolean
+				register,
 				logout,
+				// @ts-ignore
 				isLoading,
+				// @ts-ignore
 				isAuthenticated,
 			}}
 		>

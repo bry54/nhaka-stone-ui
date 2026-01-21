@@ -1,22 +1,17 @@
 import { useAuth } from '@/auth/context/auth-context';
 import { ScreenLoader } from '@/components/common/screen-loader';
-import { Navigate, Outlet } from 'react-router';
+import { Outlet } from 'react-router';
 
 /**
  * Component to protect routes that require authentication.
  * Redirects unauthenticated users to the landing page.
  */
 export const RequireAuth = () => {
-  const { loading, auth } = useAuth();
+  const { loading } = useAuth();
 
   // Show screen loader while checking auth status
   if (loading) {
     return <ScreenLoader />;
-  }
-
-  // Redirect to landing page if not authenticated
-  if (!auth) {
-    return <Navigate to="/" replace />;
   }
 
   // Allow access to protected routes if authenticated

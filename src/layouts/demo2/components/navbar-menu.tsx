@@ -17,19 +17,7 @@ import {
 
 export function NavbarMenu() {
   const { pathname } = useLocation();
-  let navbarMenu;
-
-  if (pathname.includes('/public-profile/')) {
-    navbarMenu = MENU_SIDEBAR?.[2];
-  } else if (pathname.includes('/network/')) {
-    navbarMenu = MENU_SIDEBAR?.[4];
-  } else if (pathname.includes('/store-client/')) {
-    navbarMenu = MENU_SIDEBAR_CUSTOM?.[0];
-  } else if (pathname.includes('/authentication/')) {
-    navbarMenu = MENU_SIDEBAR?.[5];
-  } else {
-    navbarMenu = MENU_SIDEBAR?.[3];
-  }
+  let navbarMenu = MENU_SIDEBAR_CUSTOM?.[0];
 
   const { isActive, hasActiveChild } = useMenu(pathname);
 

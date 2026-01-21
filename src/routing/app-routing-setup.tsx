@@ -92,14 +92,13 @@ import {
   StoreClientPage,
   WishlistPage,
 } from '@/pages/store-client';
-import { LandingPage } from '@/screens';
+import { PublicRouting } from '@/public/public-routing';
 import { Navigate, Route, Routes } from 'react-router';
 
 export function AppRoutingSetup() {
   return (
     <Routes>
-      {/* Public route - Landing page for unauthenticated users */}
-      <Route path="/" element={<LandingPage />} />
+      <Route path="/*" element={<PublicRouting />} />
 
       {/* Protected routes - Require authentication */}
       <Route element={<RequireAuth />}>
@@ -388,6 +387,8 @@ export function AppRoutingSetup() {
           <Route path="/auth/get-started" element={<AccountGetStartedPage />} />
         </Route>
       </Route>
+
+
       <Route path="error/*" element={<ErrorRouting />} />
       <Route path="auth/*" element={<AuthRouting />} />
       <Route path="*" element={<Navigate to="/error/404" />} />

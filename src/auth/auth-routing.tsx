@@ -1,18 +1,25 @@
-import { Navigate, Route, Routes } from 'react-router';
+import { Route, Routes } from 'react-router-dom';
+import { BrandedLayout } from './layouts/branded';
+import { SignInPage } from './pages/signin-page';
+import { SignUpPage } from './pages/signup-page';
+import { ResetPasswordPage } from './pages/reset-password-page';
+import { ChangePasswordPage } from './pages/change-password-page';
+import { CallbackPage } from './pages/callback-page';
+import { TwoFactorAuth } from './pages/extended/tfa';
+import { CheckEmail } from './pages/extended/check-email';
 
-/**
- * Handles all authentication related routes.
- * This component is mounted at /auth/* in the main application router.
- * Since we've simplified the auth system, we redirect all auth routes to the main dashboard.
- */
 export function AuthRouting() {
   return (
     <Routes>
-      {/* Index route to redirect to dashboard */}
-      <Route index element={<Navigate to="/" replace />} />
-
-      {/* Catch all auth routes and redirect to dashboard */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route element={<BrandedLayout />}>
+        <Route path="signin" element={<SignInPage />} />
+        <Route path="signup" element={<SignUpPage />} />
+        <Route path="reset-password" element={<ResetPasswordPage />} />
+        <Route path="change-password" element={<ChangePasswordPage />} />
+        <Route path="2fa" element={<TwoFactorAuth />} />
+        <Route path="check-email" element={<CheckEmail />} />
+      </Route>
+      <Route path="callback" element={<CallbackPage />} />
     </Routes>
   );
 }

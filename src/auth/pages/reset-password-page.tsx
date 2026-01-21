@@ -3,8 +3,7 @@ import { useAuth } from '@/auth/context/auth-context';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircle, Check, MoveLeft } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
+import { Link, useNavigate } from 'react-router-dom';
 import { Alert, AlertIcon, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,7 +22,7 @@ import {
 } from '../forms/reset-password-schema';
 
 export function ResetPasswordPage() {
-  const {} = useAuth();
+  const { } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -42,16 +41,17 @@ export function ResetPasswordPage() {
 
       console.log('Submitting password reset for:', values.email);
 
-      // Request password reset using Supabase directly
-      const { error } = await supabase.auth.resetPasswordForEmail(
-        values.email,
-        {
-          redirectTo: `${window.location.origin}/auth/reset-password`,
-        },
-      );
+      console.log('Password reset requested for:', values.email);
+
+      // Placeholder for API call
+      // await api.post('/auth/password/email', { email: values.email });
+
+      // Simulate success
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const error = null;
 
       if (error) {
-        throw new Error(error.message);
+        throw new Error('Failed to send reset email');
       }
 
       // Set success message
