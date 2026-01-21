@@ -1,23 +1,23 @@
 import { ChevronDown } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
-import { MENU_SIDEBAR, MENU_SIDEBAR_CUSTOM } from '@/config/menu.config';
-import { MenuConfig } from '@/config/types';
+import { MENU_SIDEBAR_CUSTOM } from '@/config/menu.config';
+import { MenuConfig, MenuItem } from '@/config/types';
 import { cn } from '@/lib/utils';
 import { useMenu } from '@/hooks/use-menu';
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSub,
-  MenubarSubContent,
-  MenubarSubTrigger,
-  MenubarTrigger,
-} from '@/components/ui/menubar';
+import { Menubar, MenubarContent, MenubarItem, MenubarMenu, MenubarSub, MenubarSubContent, MenubarSubTrigger, MenubarTrigger } from '@/components/ui/menubar';
+
 
 export function NavbarMenu() {
   const { pathname } = useLocation();
-  let navbarMenu = MENU_SIDEBAR_CUSTOM?.[0];
+  let navbarMenu;
+
+  if (pathname.includes('/store-client/')) {
+    navbarMenu = MENU_SIDEBAR_CUSTOM?.[0] ;
+  } else if (pathname.includes('/store-admin/')) {
+    navbarMenu = MENU_SIDEBAR_CUSTOM?.[1];
+  } else {
+    navbarMenu = {} as MenuItem;
+  }
 
   const { isActive, hasActiveChild } = useMenu(pathname);
 

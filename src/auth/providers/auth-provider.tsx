@@ -15,7 +15,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const [user, setUser] = useState<UserModel | undefined>(undefined);
 	const [isLoading, setIsLoading] = useState(true);
 
-
 	// Check for existing session on mount
 	useEffect(() => {
 		const initAuth = async () => {
@@ -24,16 +23,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				try {
 					const parsedAuth = JSON.parse(savedAuth);
 					// Verify token validity or get user profile here if needed
-					// For now we just restore the session
 					if (parsedAuth.accessToken) {
-						// Optionally fetch user profile
-						// const user = await api.get('/auth/me');
-						// setUser(user.data);
-
-						// For now, we decode token or just set a dummy user if profile not stored
-						// ideally we should store user info or fetch it.
-						// let's assume we can derive or fetch. 
-						// But based on current simple requirement, let's keep it simple.
+						const user = await api.get('/auth/me');
+						setUser(user.data);
 					}
 				} catch (e) {
 					console.error('Failed to parse auth', e);
@@ -54,11 +46,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				localStorage.setItem(AUTH_LOCAL_STORAGE_KEY, JSON.stringify(authData));
 
 				const userData: UserModel = {
-					id: '1', // We should get this from response or separate /me call
+					id: '1',
 					email: data.email,
 					fullName: data.fullName,
 					role: data.role,
-					// Use dummy avatar or get from response if available
 				};
 				setUser(userData);
 			}

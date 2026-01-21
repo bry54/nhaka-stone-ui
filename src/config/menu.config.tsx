@@ -358,87 +358,33 @@ export const MENU_SIDEBAR_CUSTOM: MenuConfig = [
     icon: Users,
     children: [
       { title: 'Home', path: '/store-client/home' },
-      {
-        title: 'Search Results',
-        children: [
-          {
-            title: 'Search Results - Grid',
-            path: '/store-client/search-results-grid',
-          },
-          {
-            title: 'Search Results - List',
-            path: '/store-client/search-results-list',
-          },
-        ],
-      },
-      {
-        title: 'Overlays',
-        children: [
-          { title: 'Product Details', path: '/store-client/product-details' },
-          { title: 'Wishlist', path: '/store-client/wishlist' },
-        ],
-      },
-      {
-        title: 'Checkout',
-        children: [
-          {
-            title: 'Order Summary',
-            path: '/store-client/checkout/order-summary',
-          },
-          {
-            title: 'Shipping Info',
-            path: '/store-client/checkout/shipping-info',
-          },
-          {
-            title: 'Payment Method',
-            path: '/store-client/checkout/payment-method',
-          },
-          {
-            title: 'Order Placed',
-            path: '/store-client/checkout/order-placed',
-          },
-        ],
-      },
+      { title: 'Memorial Reviews', path: '/store-client/memorial-reviews' },
       { title: 'My Orders', path: '/store-client/my-orders' },
       { title: 'Order Receipt', path: '/store-client/order-receipt' },
+    ],
+  },
+  {
+    title: 'Store - Admin',
+    icon: Users,
+    children: [
+      { title: 'Home', path: '/store-client/home' },
     ],
   },
 ];
 
 export const MENU_ROOT: MenuConfig = [
   {
-    title: 'Public Profile',
-    icon: UserCircle,
-    rootPath: '/public-profile/',
-    path: 'public-profile/profiles/default',
-    childrenIndex: 2,
-  },
-  {
-    title: 'Account',
-    icon: Settings,
-    rootPath: '/account/',
-    path: '/',
-    childrenIndex: 3,
-  },
-  {
-    title: 'Network',
-    icon: Users,
-    rootPath: '/network/',
-    path: 'network/get-started',
-    childrenIndex: 4,
-  },
-  {
     title: 'Store - Client',
-    icon: ShoppingCart,
+    icon: UserCircle,
     rootPath: '/store-client/',
     path: 'store-client/home',
-    childrenIndex: 4,
+    childrenIndex: 0,
   },
   {
-    title: 'Authentication',
-    icon: Shield,
-    rootPath: '/authentication/',
-    path: 'authentication/get-started',
-    childrenIndex: 5,
+    title: 'Store - Admin',
+    icon: Settings,
+    rootPath: '/store-admin/',
+    path: 'store-admin/home',
+    childrenIndex: 1,
   },
 ];

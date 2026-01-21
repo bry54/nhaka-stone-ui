@@ -1,23 +1,11 @@
 import {
-  Deals,
-  FeaturedProducts,
-  Info,
-  NewArrivals,
-  PopularSneakers,
-  Search,
-  SpecialOffers,
+  ProductShowcase,
 } from './components';
 
 export function StoreClientContent() {
   return (
     <div className="grid grid-cols-1 gap-6">
-      <Search />
-      <FeaturedProducts />
-      <SpecialOffers />
-      <NewArrivals />
-      <PopularSneakers />
-      <Deals />
-      <Info />
+      <ProductShowcase />
     </div>
   );
 }
