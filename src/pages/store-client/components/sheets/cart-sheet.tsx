@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ShoppingCart, Minus, Plus, QrCode, CreditCard } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ShoppingCart, Minus, Plus, QrCode, CreditCard, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -15,6 +15,9 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { useStoreClient } from '../context';
+import api from '@/lib/api';
+import { useAuth } from '@/auth/context/auth-context';
+import type { PurchaseData } from '@/types/purchase.types';
 
 export function StoreClientCartSheet({
   open,
@@ -24,7 +27,32 @@ export function StoreClientCartSheet({
   onOpenChange: () => void;
 }) {
   const { state, getCartCount, getCartTotal, updateCartItemQuantity, removeCartItem } = useStoreClient();
-  const [paymentMethod, setPaymentMethod] = useState('credit-card');
+  const { user } = useAuth();
+  const [paymentMethod, setPaymentMethod] = useState<'credit-card' | 'paypal' | 'google-pay' | 'apple-pay'>('credit-card');
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  // Delivery form state - pre-filled with user data
+  const [deliveryInfo, setDeliveryInfo] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    state: '',
+    zipCode: '',
+  });
+
+  // Update form when user data becomes available
+  useEffect(() => {
+    if (user) {
+      console.log(user);
+      setDeliveryInfo(prev => ({
+        ...prev,
+        fullName: user.fullName || '',
+        email: user.email || '',
+      }));
+    }
+  }, [user]);
 
   const cartItem = state.cartItems[0]; // Single product
   const cartCount = getCartCount();
@@ -40,6 +68,134 @@ export function StoreClientCartSheet({
   const handleRemoveItem = () => {
     if (cartItem) {
       removeCartItem(cartItem.productId);
+    }
+  };
+
+  const handleDeliveryChange = (field: string, value: string) => {
+    setDeliveryInfo(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handlePlaceOrder = async () => {
+    if (!cartItem) return;
+
+    // Basic validation
+    if (!deliveryInfo.fullName || !deliveryInfo.email || !deliveryInfo.phone || !deliveryInfo.address) {
+      alert('Please fill in all required delivery fields.');
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      // Mock payment processing delay (1.5 seconds)
+      const item = state.cartItems[0];
+
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // Generate mock transaction ID (would come from payment gateway)
+      const transactionId = `TXN-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+      const timestamp = new Date().toISOString();
+
+      // Prepare purchase data with payment gateway information
+      const purchaseData: PurchaseData = {
+        // Order information
+        orderId: `ORD-${Date.now()}`,
+        orderDate: timestamp,
+
+        // Item
+        item: {
+          productId: item.productId,
+          productName: item.productName,
+          quantity: item.quantity,
+          unitPrice: item.price,
+          totalPrice: item.price * item.quantity,
+        },
+
+        // Customer information
+        customer: {
+          id: user?.id,
+          fullName: deliveryInfo.fullName,
+          email: deliveryInfo.email,
+          phone: deliveryInfo.phone,
+        },
+
+        // Delivery/Shipping information
+        delivery: {
+          fullName: deliveryInfo.fullName,
+          email: deliveryInfo.email,
+          phone: deliveryInfo.phone,
+          address: deliveryInfo.address,
+          city: deliveryInfo.city,
+          state: deliveryInfo.state,
+          zipCode: deliveryInfo.zipCode,
+          country: 'Zimbabwe', // Could be a form field
+        },
+
+        // Payment information (from payment gateway)
+        payment: {
+          // Payment method details
+          method: paymentMethod,
+          provider: paymentMethod === 'credit-card' ? 'Stripe' :
+            paymentMethod === 'paypal' ? 'PayPal' :
+              paymentMethod === 'google-pay' ? 'Google Pay' : 'Apple Pay',
+
+          // Transaction details (would come from payment processor)
+          transactionId: transactionId,
+          status: 'completed', // 'pending', 'completed', 'failed'
+          timestamp: timestamp,
+
+          // Amount details
+          currency: 'USD',
+          subtotal: cartTotal,
+          tax: 0, // Could calculate tax
+          shippingCost: 0, // Could add shipping
+          discount: 0, // Could add discount codes
+          totalAmount: cartTotal,
+
+          // Payment processor response (mock data)
+          processorResponse: {
+            authorizationCode: `AUTH-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+            receiptUrl: `https://payment-gateway.com/receipts/${transactionId}`,
+            last4: paymentMethod === 'credit-card' ? '4242' : null, // Last 4 digits of card
+            cardBrand: paymentMethod === 'credit-card' ? 'Visa' : null,
+          },
+        },
+
+        // Order summary
+        summary: {
+          itemCount: cartCount,
+          subtotal: cartTotal,
+          total: cartTotal,
+          currency: 'USD',
+        },
+      };
+
+      // Call the purchase endpoint
+      await api.post('/memorial-purchase', purchaseData);
+
+      // Success
+      alert(`Order placed successfully! Your order for ${cartCount} item(s) has been confirmed.`);
+
+      // Clear cart
+      removeCartItem(cartItem.productId);
+
+      // Close sheet
+      onOpenChange();
+
+      // Reset form
+      setDeliveryInfo({
+        fullName: '',
+        email: '',
+        phone: '',
+        address: '',
+        city: '',
+        state: '',
+        zipCode: '',
+      });
+    } catch (error: any) {
+      alert(error.response?.data?.message || 'Order failed. Something went wrong. Please try again.');
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -116,37 +272,81 @@ export function StoreClientCartSheet({
                     <div className="grid grid-cols-2 gap-3">
                       <div className="col-span-2">
                         <Label htmlFor="fullName" className="text-sm">Full Name</Label>
-                        <Input id="fullName" placeholder="John Doe" className="mt-1" />
+                        <Input
+                          id="fullName"
+                          placeholder="Nhaka Stone"
+                          className="mt-1"
+                          value={deliveryInfo.fullName}
+                          onChange={(e) => handleDeliveryChange('fullName', e.target.value)}
+                        />
                       </div>
 
                       <div>
                         <Label htmlFor="email" className="text-sm">Email</Label>
-                        <Input id="email" type="email" placeholder="john@example.com" className="mt-1" />
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="user@nhaka-stone.com"
+                          className="mt-1"
+                          value={deliveryInfo.email}
+                          onChange={(e) => handleDeliveryChange('email', e.target.value)}
+                        />
                       </div>
 
                       <div>
                         <Label htmlFor="phone" className="text-sm">Phone Number</Label>
-                        <Input id="phone" type="tel" placeholder="+1 (555) 000-0000" className="mt-1" />
+                        <Input
+                          id="phone"
+                          type="tel"
+                          placeholder="+263 777 777 777"
+                          className="mt-1"
+                          value={deliveryInfo.phone}
+                          onChange={(e) => handleDeliveryChange('phone', e.target.value)}
+                        />
                       </div>
 
                       <div className="col-span-2">
                         <Label htmlFor="address" className="text-sm">Address</Label>
-                        <Input id="address" placeholder="123 Main St" className="mt-1" />
+                        <Input
+                          id="address"
+                          placeholder="123 Main St, Zengeza"
+                          className="mt-1"
+                          value={deliveryInfo.address}
+                          onChange={(e) => handleDeliveryChange('address', e.target.value)}
+                        />
                       </div>
 
                       <div>
                         <Label htmlFor="city" className="text-sm">City</Label>
-                        <Input id="city" placeholder="New York" className="mt-1" />
+                        <Input
+                          id="city"
+                          placeholder="Chitungwiza"
+                          className="mt-1"
+                          value={deliveryInfo.city}
+                          onChange={(e) => handleDeliveryChange('city', e.target.value)}
+                        />
                       </div>
 
                       <div>
                         <Label htmlFor="state" className="text-sm">State</Label>
-                        <Input id="state" placeholder="NY" className="mt-1" />
+                        <Input
+                          id="state"
+                          placeholder="Zimbabwe"
+                          className="mt-1"
+                          value={deliveryInfo.state}
+                          onChange={(e) => handleDeliveryChange('state', e.target.value)}
+                        />
                       </div>
 
                       <div className="col-span-2">
                         <Label htmlFor="zip" className="text-sm">Zip Code</Label>
-                        <Input id="zip" placeholder="10001" className="mt-1" />
+                        <Input
+                          id="zip"
+                          placeholder="10001"
+                          className="mt-1"
+                          value={deliveryInfo.zipCode}
+                          onChange={(e) => handleDeliveryChange('zipCode', e.target.value)}
+                        />
                       </div>
                     </div>
                   </CardContent>
@@ -157,7 +357,7 @@ export function StoreClientCartSheet({
                   <CardContent className="p-4 space-y-4">
                     <h3 className="text-base font-semibold">Payment Method</h3>
 
-                    <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
+                    <RadioGroup value={paymentMethod} onValueChange={(value) => setPaymentMethod(value as typeof paymentMethod)}>
                       <div className="space-y-3">
                         {/* Credit Card */}
                         <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent/50 cursor-pointer">
@@ -235,9 +435,23 @@ export function StoreClientCartSheet({
         </SheetBody>
         <SheetFooter className="flex-row border-t py-3.5 px-5 border-border gap-2">
           <Button variant="outline" onClick={onOpenChange}>Continue Shopping</Button>
-          <Button variant="primary" className="grow" disabled={!cartItem}>
-            <ShoppingCart />
-            Place Order
+          <Button
+            variant="primary"
+            className="grow"
+            disabled={!cartItem || isProcessing}
+            onClick={handlePlaceOrder}
+          >
+            {isProcessing ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              <>
+                <ShoppingCart />
+                Place Order
+              </>
+            )}
           </Button>
         </SheetFooter>
       </SheetContent>

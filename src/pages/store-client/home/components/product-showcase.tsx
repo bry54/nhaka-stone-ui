@@ -5,8 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useStoreClient, CartItem } from '../../components/context';
 
 export function ProductShowcase() {
-    const [selectedPack, setSelectedPack] = useState(3);
-    const [quantity, setQuantity] = useState(30);
+    const [quantity, setQuantity] = useState(1);
     const { handleAddToCart } = useStoreClient();
 
     const features = [
