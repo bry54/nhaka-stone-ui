@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { User, PenSquare, Image, MessageSquare, Check, Minus, Plus, QrCode } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { useStoreClient, CartItem } from '../../components/context';
 
 export function ProductShowcase() {
     const [selectedPack, setSelectedPack] = useState(3);
     const [quantity, setQuantity] = useState(30);
+    const { handleAddToCart } = useStoreClient();
 
     const features = [
         { icon: User, text: 'Create a personalised memorial profile for your loved one' },
@@ -26,11 +27,25 @@ export function ProductShowcase() {
         setQuantity(Math.max(1, quantity + delta));
     };
 
+    const handleAddToCartClick = () => {
+        const cartItem: CartItem = {
+            productId: 'nhaka-stone-medallion',
+            productName: 'Nhaka Stone Medallion',
+            price: 10.00,
+            quantity: quantity,
+        };
+        handleAddToCart(cartItem);
+    };
+
     return (
         <div className="grid lg:grid-cols-2 gap-8 p-6">
             {/* Left Side - Product Features */}
             <div className="bg-gradient-to-b from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 rounded-2xl p-8 lg:p-12">
                 <div className="flex flex-col gap-8">
+                    <h3 className="text-2xl lg:text-2xl font-medium text-blue-900 dark:text-blue-100 leading-tight">
+
+                    </h3>
+
                     {/* Product Image and Feature Callouts Side by Side */}
                     <div className="grid md:grid-cols-2 gap-6 items-center">
                         {/* Product Image Placeholder */}
@@ -38,7 +53,7 @@ export function ProductShowcase() {
                             <div className="w-48 h-48 bg-gray-900 dark:bg-gray-800 rounded-2xl flex items-center justify-center shadow-2xl">
                                 <div className="text-center text-white">
                                     <div className="text-sm mb-2 flex items-center justify-center"><QrCode /></div>
-                                    <div className="text-xs opacity-70">NHAKA-STONE</div>
+                                    <div className="text-xs opacity-70">NHAKA STONE</div>
                                 </div>
                             </div>
                         </div>
@@ -88,7 +103,7 @@ export function ProductShowcase() {
 
                             {/* Price */}
                             <div className="text-4xl font-bold text-foreground mb-6">
-                                USD 10.00 per medallion
+                                $ 10.00 / medallion
                             </div>
                         </div>
 
@@ -128,7 +143,7 @@ export function ProductShowcase() {
                         </div>
 
                         {/* Add to Cart Button */}
-                        <Button className="w-full h-12 text-base font-semibold" size="lg">
+                        <Button className="w-full h-12 text-base font-semibold" size="lg" onClick={handleAddToCartClick}>
                             Add to cart
                         </Button>
                     </CardContent>

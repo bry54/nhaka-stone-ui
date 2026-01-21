@@ -8,7 +8,10 @@ import { useStoreClient } from '../context';
 
 export function StoreClientTopbar() {
   const { pathname } = useLocation();
-  const { showCartSheet, showWishlistSheet } = useStoreClient();
+  const { showCartSheet, showWishlistSheet, getCartCount, getCartTotal } = useStoreClient();
+
+  const cartCount = getCartCount();
+  const cartTotal = getCartTotal();
 
   return (
     <>
@@ -56,6 +59,7 @@ export function StoreClientTopbar() {
           <Heart className="size-5!" />
         </Button>
 
+        {/* Cart */}
         <div className="flex items-center gap-1">
           <Button
             variant="ghost"
@@ -66,20 +70,22 @@ export function StoreClientTopbar() {
             className="relative hover:text-primary"
           >
             <ShoppingCart className="size-5!" />
-            <Badge
-              className="absolute top-0.5 end-0.5"
-              variant="success"
-              size="xs"
-              shape="circle"
-            >
-              3
-            </Badge>
+            {cartCount > 0 && (
+              <Badge
+                className="absolute top-0.5 end-0.5"
+                variant="success"
+                size="xs"
+                shape="circle"
+              >
+                {cartCount}
+              </Badge>
+            )}
           </Button>
           <div className="flex flex-col">
             <span className="text-xs font-medium text-secondary-foreground">
               Total
             </span>
-            <span className="text-xs font-medium text-dark">$94.56</span>
+            <span className="text-xs font-medium text-dark">${cartTotal.toFixed(2)}</span>
           </div>
         </div>
       </div>

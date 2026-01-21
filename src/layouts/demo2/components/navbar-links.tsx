@@ -3,17 +3,17 @@ export function NavbarLinks() {
     <div className="flex items-center text-sm gap-5 lg:pb-1">
       <a
         className="hover:text-primary"
-        href="https://www.youtube.com/c/KeenThemesTuts/videos"
+        href=""
       >
         Videos
       </a>
       <a
         className="hover:text-primary"
-        href="https://keenthemes.com/metronic/tailwind/docs/"
+        href=""
       >
         User Guides
       </a>
-      <a className="hover:text-primary" href="https://devs.keenthemes.com">
+      <a className="hover:text-primary" href="">
         Support
       </a>
     </div>

@@ -2,12 +2,21 @@
 
 import * as React from 'react';
 
+// Cart item interface
+export interface CartItem {
+  productId: string;
+  productName: string;
+  price: number;
+  quantity: number;
+}
+
 // Define the state interface
 interface StoreClientState {
   isWishlistSheetOpen: boolean;
   isCartSheetOpen: boolean;
   isProductDetailsSheetOpen: boolean;
   productDetailsId: string | null;
+  cartItems: CartItem[];
 }
 
 // Define the action types
@@ -18,7 +27,9 @@ type StoreClientAction =
   | { type: 'CLOSE_CART_SHEET' }
   | { type: 'SHOW_PRODUCT_DETAILS_SHEET'; productId: string }
   | { type: 'CLOSE_PRODUCT_DETAILS_SHEET' }
-  | { type: 'ADD_TO_CART'; productId: string };
+  | { type: 'ADD_TO_CART'; item: CartItem }
+  | { type: 'UPDATE_CART_ITEM_QUANTITY'; productId: string; quantity: number }
+  | { type: 'REMOVE_CART_ITEM'; productId: string };
 
 // Initial state
 const initialState: StoreClientState = {
@@ -26,6 +37,7 @@ const initialState: StoreClientState = {
   isCartSheetOpen: false,
   isProductDetailsSheetOpen: false,
   productDetailsId: null,
+  cartItems: [],
 };
 
 // Reducer to manage state
@@ -54,10 +66,50 @@ function storeClientReducer(
         isProductDetailsSheetOpen: false,
         productDetailsId: null,
       };
-    case 'ADD_TO_CART':
-      // Log productId for now; extend to update cart state if needed
-      console.log(`Added product ${action.productId} to cart`);
-      return { ...state, isCartSheetOpen: true }; // Open cart sheet on add
+    case 'ADD_TO_CART': {
+      const existingItemIndex = state.cartItems.findIndex(
+        item => item.productId === action.item.productId
+      );
+
+      let updatedCartItems;
+      if (existingItemIndex >= 0) {
+        // Update existing item quantity
+        updatedCartItems = [...state.cartItems];
+        updatedCartItems[existingItemIndex] = {
+          ...updatedCartItems[existingItemIndex],
+          quantity: updatedCartItems[existingItemIndex].quantity + action.item.quantity,
+        };
+      } else {
+        // Add new item
+        updatedCartItems = [...state.cartItems, action.item];
+      }
+
+      return {
+        ...state,
+        cartItems: updatedCartItems,
+        isCartSheetOpen: false,
+      };
+    }
+    case 'UPDATE_CART_ITEM_QUANTITY': {
+      const updatedCartItems = state.cartItems.map(item =>
+        item.productId === action.productId
+          ? { ...item, quantity: action.quantity }
+          : item
+      );
+      return {
+        ...state,
+        cartItems: updatedCartItems,
+      };
+    }
+    case 'REMOVE_CART_ITEM': {
+      const updatedCartItems = state.cartItems.filter(
+        item => item.productId !== action.productId
+      );
+      return {
+        ...state,
+        cartItems: updatedCartItems,
+      };
+    }
     default:
       return state;
   }
@@ -72,7 +124,11 @@ interface StoreClientContextValue {
   closeCartSheet: () => void;
   showProductDetailsSheet: (productId: string) => void;
   closeProductDetailsSheet: () => void;
-  handleAddToCart: ({ productId }: { productId: string }) => void;
+  handleAddToCart: (item: CartItem) => void;
+  updateCartItemQuantity: (productId: string, quantity: number) => void;
+  removeCartItem: (productId: string) => void;
+  getCartCount: () => number;
+  getCartTotal: () => number;
 }
 
 // Create context
@@ -96,8 +152,25 @@ export function StoreClientProvider({
     dispatch({ type: 'SHOW_PRODUCT_DETAILS_SHEET', productId });
   const closeProductDetailsSheet = () =>
     dispatch({ type: 'CLOSE_PRODUCT_DETAILS_SHEET' });
-  const handleAddToCart = ({ productId }: { productId: string }) =>
-    dispatch({ type: 'ADD_TO_CART', productId });
+  const handleAddToCart = (item: CartItem) =>
+    dispatch({ type: 'ADD_TO_CART', item });
+  const updateCartItemQuantity = (productId: string, quantity: number) =>
+    dispatch({ type: 'UPDATE_CART_ITEM_QUANTITY', productId, quantity });
+  const removeCartItem = (productId: string) =>
+    dispatch({ type: 'REMOVE_CART_ITEM', productId });
+
+  // Helper function to get total cart count
+  const getCartCount = () => {
+    return state.cartItems.reduce((total, item) => total + item.quantity, 0);
+  };
+
+  // Helper function to get cart total price
+  const getCartTotal = () => {
+    return state.cartItems.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    );
+  };
 
   const value: StoreClientContextValue = {
     state,
@@ -108,6 +181,10 @@ export function StoreClientProvider({
     showProductDetailsSheet,
     closeProductDetailsSheet,
     handleAddToCart,
+    updateCartItemQuantity,
+    removeCartItem,
+    getCartCount,
+    getCartTotal,
   };
 
   return (
