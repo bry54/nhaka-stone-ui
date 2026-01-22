@@ -1,5 +1,9 @@
 import { MyOrders } from './components/my-orders';
 
-export function MyOrdersContent() {
-  return <MyOrders />;
+interface MyOrdersContentProps {
+  onTotalOrdersChange: (total: number) => void;
+}
+
+export function MyOrdersContent({ onTotalOrdersChange }: MyOrdersContentProps) {
+  return <MyOrders onTotalOrdersChange={onTotalOrdersChange} />;
 }

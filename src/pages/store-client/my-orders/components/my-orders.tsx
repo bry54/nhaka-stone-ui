@@ -16,7 +16,11 @@ import {
   PaginationItem,
 } from '@/components/ui/pagination';
 
-export function MyOrders() {
+interface MyOrdersProps {
+  onTotalOrdersChange: (total: number) => void;
+}
+
+export function MyOrders({ onTotalOrdersChange }: MyOrdersProps) {
   const [orders, setOrders] = useState<PurchaseData[]>([]);
   const [totalOrders, setTotalOrders] = useState(0);
   const [pageCount, setPageCount] = useState(0);
@@ -91,6 +95,10 @@ export function MyOrders() {
     searchQuery,
   ]);
 
+  useEffect(() => {
+    onTotalOrdersChange(totalOrders);
+  }, [totalOrders, onTotalOrdersChange]);
+
   const handlePageChange = (newPageIndex: number) => {
     setPagination(prev => ({ ...prev, pageIndex: newPageIndex }));
   };
@@ -110,9 +118,6 @@ export function MyOrders() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold">My Orders ({totalOrders})</h2>
-      </div>
       <div className="grid grid-cols-1 gap-5 lg:gap-9">
         {orders.map((order) => (
           <div className="col-span-1" key={order.orderId}>

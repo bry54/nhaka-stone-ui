@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, useState } from 'react';
 import {
   Toolbar,
   ToolbarDescription,
@@ -9,18 +9,20 @@ import { Container } from '@/components/common/container';
 import { MyOrdersContent } from '.';
 
 export function MyOrdersPage() {
+  const [totalOrders, setTotalOrders] = useState(0);
+
   return (
     <Fragment>
       <Container>
         <Toolbar>
           <ToolbarHeading>
-            <ToolbarPageTitle />
+            <ToolbarPageTitle text={`My Orders (${totalOrders})`} />
             <ToolbarDescription>View and manage your orders</ToolbarDescription>
           </ToolbarHeading>
         </Toolbar>
       </Container>
       <Container>
-        <MyOrdersContent />
+        <MyOrdersContent onTotalOrdersChange={setTotalOrders} />
       </Container>
     </Fragment>
   );
