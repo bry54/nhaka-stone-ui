@@ -7,6 +7,8 @@ import { IFetchOptions } from '@/lib/generic-interfaces';
 import { Button } from '@/components/ui/button.tsx';
 import { Pagination, PaginationContent, PaginationItem } from '@/components/ui/pagination.tsx';
 import { MemorialItem } from '../../components/common/memorial-item';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 
 
 interface MemorialsListProps {
@@ -19,6 +21,7 @@ export function Memorials({ memorialPurchaseId }: MemorialsListProps) {
   const [pageCount, setPageCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedMemorial, setSelectedMemorial] = useState<any | null>(null);
+  const [showConfirmed, setShowConfirmed] = useState(true);
 
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
@@ -55,8 +58,9 @@ export function Memorials({ memorialPurchaseId }: MemorialsListProps) {
         params.append('s', JSON.stringify(searchPayload));
       }
 
+      const confirmationStatus = showConfirmed ? 'true' : 'false';
       const response = await api.get(
-        `/memorial?filter=memorialPurchaseId||eq||${memorialPurchaseId}`,
+        `/memorial?filter=memorialPurchaseId||eq||${memorialPurchaseId}&filter=isConfirmed||eq||${confirmationStatus}`,
         { params },
       );
 
@@ -74,7 +78,7 @@ export function Memorials({ memorialPurchaseId }: MemorialsListProps) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [memorialPurchaseId, showConfirmed]);
 
   useEffect(() => {
     fetchMemorials({
@@ -89,10 +93,17 @@ export function Memorials({ memorialPurchaseId }: MemorialsListProps) {
     pagination.pageSize,
     sorting,
     searchQuery,
+    showConfirmed,
   ]);
 
   const handlePageChange = (newPageIndex: number) => {
     setPagination((prev) => ({ ...prev, pageIndex: newPageIndex }));
+  };
+
+  const handleToggleConfirmation = (checked: boolean) => {
+    setShowConfirmed(checked);
+    // Reset to first page when toggling
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
   };
 
   const renderItem = (item: any, index: number) => (
@@ -134,7 +145,9 @@ export function Memorials({ memorialPurchaseId }: MemorialsListProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">
-        <span className="text-lg font-medium text-mono">Memorials</span>
+        <div className="flex items-center gap-4">
+          <span className="text-lg font-medium text-mono">Memorials</span>
+        </div>
 
         {/* Pagination */}
         {pageCount > 1 && (
@@ -176,6 +189,18 @@ export function Memorials({ memorialPurchaseId }: MemorialsListProps) {
             </PaginationContent>
           </Pagination>
         )}
+
+        {/* Confirmation Status Toggle */}
+        <div className="flex items-center gap-2">
+          <Switch
+            id="confirmation-toggle"
+            checked={showConfirmed}
+            onCheckedChange={handleToggleConfirmation}
+          />
+          <Label htmlFor="confirmation-toggle" className="text-sm cursor-pointer">
+            {showConfirmed ? 'Confirmed' : 'Unconfirmed'}
+          </Label>
+        </div>
       </div>
 
       <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-2">
