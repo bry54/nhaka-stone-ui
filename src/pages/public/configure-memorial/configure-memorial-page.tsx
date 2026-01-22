@@ -33,7 +33,7 @@ export function ConfigureMemorialPage() {
 
       try {
         setIsLoading(true);
-        const response = await api.get(`/memorial/${id}`);
+        const response = await api.get(`/memorial/public/${id}`);
         setMemorial(response.data);
 
         // Check if already configured
@@ -67,7 +67,7 @@ export function ConfigureMemorialPage() {
       setIsConfigured(true);
 
       // Refresh memorial data
-      const response = await api.get(`/memorials/${id}`);
+      const response = await api.get(`/memorial/public/${id}`);
       setMemorial(response.data);
     } catch (err: any) {
       console.error('Error updating memorial:', err);

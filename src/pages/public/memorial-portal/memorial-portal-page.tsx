@@ -32,7 +32,7 @@ export function MemorialPortalPage() {
 
             try {
                 setIsLoading(true);
-                const response = await api.get(`/memorial/${id}`);
+                const response = await api.get(`/memorial/public/${id}`);
                 setMemorial(response.data);
             } catch (err: any) {
                 console.error('Error fetching memorial:', err);
@@ -67,7 +67,7 @@ export function MemorialPortalPage() {
             toast.success('Memorial configured successfully!');
 
             // Refresh memorial data to switch to memorial view
-            const response = await api.get(`/memorial/${id}`);
+            const response = await api.get(`/memorial/public/${id}`);
             setMemorial(response.data);
         } catch (err: any) {
             console.error('Error updating memorial:', err);
