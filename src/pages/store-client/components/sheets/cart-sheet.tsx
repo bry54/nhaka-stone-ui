@@ -47,7 +47,7 @@ export function StoreClientCartSheet({
   // Update form when user data becomes available
   useEffect(() => {
     if (user) {
-      console.log(user);
+      console.log('Now available', { user });
       setDeliveryInfo(prev => ({
         ...prev,
         fullName: user.fullName || '',
@@ -97,6 +97,7 @@ export function StoreClientCartSheet({
     setIsProcessing(true);
 
     try {
+      console.log(user);
       // Mock payment processing delay (1.5 seconds)
       const item = state.cartItems[0];
 

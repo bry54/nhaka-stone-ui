@@ -1,3 +1,5 @@
+import { IContribution } from "./contribution.types";
+
 export interface IDeceasedPerson {
     fullName: string;
     dateOfBirth: string;
@@ -18,6 +20,8 @@ export interface IMemorial {
     isPublic: boolean;
     isConfirmed: boolean;
     memorialPurchaseId: string;
+    summary: string;
     deceasedPerson: IDeceasedPerson;
     qrCode: IQRCode;
+    contributions: IContribution[];
 }

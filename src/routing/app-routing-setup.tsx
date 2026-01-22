@@ -9,22 +9,24 @@ import {
   MyOrdersPage,
   StoreClientPage,
 } from '@/pages/store-client';
-import { PublicRouting } from '@/public/public-routing';
+import { PublicRouting } from '@/pages/public/public-routing';
 import { Navigate, Route, Routes } from 'react-router';
+import { MemorialPortalPage } from '@/pages/public/memorial-portal';
 
 export function AppRoutingSetup() {
   const { user } = useAuth();
+
   let element = <PublicRouting />
   if (user?.role === 'admin') {
     element = <Navigate to="/store-admin/home" replace />
-  }
-  if (user?.role === 'client') {
+  } else if (user?.role === 'user') {
     element = <Navigate to="/store-client/home" replace />
   }
 
   return (
     <Routes>
       <Route path="/" element={element} />
+      <Route path="/memorial-portal/:id" element={<MemorialPortalPage />} />
 
       {/* Protected routes - Require authentication */}
       <Route element={<RequireAuth />}>
@@ -32,6 +34,7 @@ export function AppRoutingSetup() {
           {/* Authenticated users accessing root are redirected to home */}
           <Route path="/store-client/home" element={<StoreClientPage />} />
           <Route path="/store-client/my-orders" element={<MyOrdersPage />} />
+
           <Route path="/store-admin/home" element={<DashboardPage />} />
         </Route>
       </Route>

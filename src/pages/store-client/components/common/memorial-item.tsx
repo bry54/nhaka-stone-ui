@@ -53,7 +53,7 @@ export function MemorialItem({ memorial }: ICard2Props) {
           <div className="flex items-center gap-2 flex-wrap">
             <Badge
               size="sm"
-              variant={memorial.isConfirmed ? "default" : "secondary"}
+              variant={memorial.isConfirmed ? "primary" : "secondary"}
               className="gap-1"
             >
               <CheckCircle2 className="w-3 h-3" />
@@ -62,7 +62,7 @@ export function MemorialItem({ memorial }: ICard2Props) {
 
             <Badge
               size="sm"
-              variant={memorial.isPublic ? "default" : "outline"}
+              variant={memorial.isPublic ? "primary" : "outline"}
               className="gap-1"
             >
               <Globe className="w-3 h-3" />
@@ -71,7 +71,7 @@ export function MemorialItem({ memorial }: ICard2Props) {
 
             <Badge
               size="sm"
-              variant={memorial.qrCode?.isActive ? "default" : "destructive"}
+              variant={memorial.qrCode?.isActive ? "primary" : "destructive"}
               className="gap-1"
             >
               <QrCode className="w-3 h-3" />

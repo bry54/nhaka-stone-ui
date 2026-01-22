@@ -26,7 +26,7 @@ export function Memorials({ memorialPurchaseId }: MemorialsListProps) {
   });
 
   const [sorting, setSorting] = useState<SortingState>([
-    { id: 'createdAt', desc: true },
+    { id: 'updatedAt', desc: true },
   ]);
 
   const [searchQuery, setSearchQuery] = useState<string>('');
