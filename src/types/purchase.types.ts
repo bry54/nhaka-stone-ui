@@ -89,4 +89,6 @@ export interface PurchaseData {
     summary: OrderSummary;
 
     memorials?: { id: string; isConfirmed: boolean }[]
+
+    id?: string
 }

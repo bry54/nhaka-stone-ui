@@ -15,6 +15,7 @@ import {
   PaginationContent,
   PaginationItem,
 } from '@/components/ui/pagination';
+import { OrderDetailsDialog } from './order-details-dialog';
 
 interface MyOrdersProps {
   onTotalOrdersChange: (total: number) => void;
@@ -25,6 +26,8 @@ export function MyOrders({ onTotalOrdersChange }: MyOrdersProps) {
   const [totalOrders, setTotalOrders] = useState(0);
   const [pageCount, setPageCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<PurchaseData | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
 
   const [pagination, setPagination] = useState<PaginationState>({
@@ -103,6 +106,11 @@ export function MyOrders({ onTotalOrdersChange }: MyOrdersProps) {
     setPagination(prev => ({ ...prev, pageIndex: newPageIndex }));
   };
 
+  const handleOrderClick = (order: PurchaseData) => {
+    setSelectedOrder(order);
+    setDialogOpen(true);
+  };
+
   if (isLoading && orders.length === 0) {
     return <div className="flex justify-center py-10"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>;
   }
@@ -121,7 +129,10 @@ export function MyOrders({ onTotalOrdersChange }: MyOrdersProps) {
       <div className="grid grid-cols-1 gap-5 lg:gap-9">
         {orders.map((order) => (
           <div className="col-span-1" key={order.orderId}>
-            <Card>
+            <Card
+              className="cursor-pointer transition-all hover:shadow-md hover:border-primary/50"
+              onClick={() => handleOrderClick(order)}
+            >
               <CardHeader className="justify-start bg-muted/70 gap-9 h-auto py-5 flex-row flex-wrap">
                 <div className="flex flex-col gap-1.5 min-w-[100px]">
                   <span className="text-xs font-normal text-secondary-foreground">
@@ -186,6 +197,7 @@ export function MyOrders({ onTotalOrdersChange }: MyOrdersProps) {
                       <Link
                         to="#"
                         className="hover:text-primary text-sm font-medium text-mono leading-5.5"
+                        onClick={(e) => e.stopPropagation()}
                       >
                         {order.item?.productName || 'Unknown Product'}
                       </Link>
@@ -251,6 +263,13 @@ export function MyOrders({ onTotalOrdersChange }: MyOrdersProps) {
           </PaginationContent>
         </Pagination>
       )}
+
+      {/* Order Details Dialog */}
+      <OrderDetailsDialog
+        order={selectedOrder}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+      />
     </div>
   );
 }
