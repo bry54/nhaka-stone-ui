@@ -22,7 +22,7 @@ export function Memorials({ memorialPurchaseId }: MemorialsListProps) {
 
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 5,
+    pageSize: 10,
   });
 
   const [sorting, setSorting] = useState<SortingState>([

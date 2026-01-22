@@ -1,10 +1,10 @@
-import { ShoppingCart, Star } from 'lucide-react';
+import { ShoppingCart, CheckCircle2, Globe, QrCode, Calendar, MapPin } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import QRCode from 'qrcode'
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import QRCodeLib from 'qrcode'
 import { IMemorial } from '@/types/memorial.types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 
 interface ICard2Props {
@@ -26,59 +26,109 @@ export function MemorialItem({ memorial }: ICard2Props) {
     }
   }
 
-  QRCode.toDataURL('memorial?.qrCode?.code', opts, function (err, url) {
-    if (err) throw err
-    //setSrcUrl(url)
-  })
+  useEffect(() => {
+    if (memorial?.qrCode?.code) {
+      QRCodeLib.toDataURL(memorial.qrCode.code, opts, function (err, url) {
+        if (err) {
+          console.error('QR Code generation error:', err)
+          return
+        }
+        setSrcUrl(url)
+      })
+    }
+  }, [memorial])
+
+  // Format dates
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'N/A'
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+  }
 
   return (
-    <Card>
-      <CardContent className="flex flex-col justify-between p-2.5 gap-4">
-        <div className="mb-2.5">
-          <Card className="flex items-center justify-center relative bg-accent/50 w-full h-[180px] mb-4  shadow-none">
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
+      <CardHeader className="p-0">
+        {/* Status Badges Row */}
+        <div className="flex items-center justify-between gap-2 p-3 bg-gradient-to-r from-accent/30 to-accent/10">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Badge
+              size="sm"
+              variant={memorial.isConfirmed ? "default" : "secondary"}
+              className="gap-1"
+            >
+              <CheckCircle2 className="w-3 h-3" />
+              {memorial.isConfirmed ? 'Confirmed' : 'Pending'}
+            </Badge>
+
+            <Badge
+              size="sm"
+              variant={memorial.isPublic ? "default" : "outline"}
+              className="gap-1"
+            >
+              <Globe className="w-3 h-3" />
+              {memorial.isPublic ? 'Public' : 'Private'}
+            </Badge>
+
+            <Badge
+              size="sm"
+              variant={memorial.qrCode?.isActive ? "default" : "destructive"}
+              className="gap-1"
+            >
+              <QrCode className="w-3 h-3" />
+              {memorial.qrCode?.isActive ? 'QR Active' : 'QR Inactive'}
+            </Badge>
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="p-4">
+        {/* QR Code Section */}
+        <div className="flex flex-col items-center mb-4">
+          <Card className="flex items-center justify-center relative bg-gradient-to-br from-accent/20 to-accent/5 w-[180px] h-[180px] mb-3 shadow-sm border-2">
             <img
-              onClick={() => console.log('Clicked memorial item image')}
+              key={srcUrl}
+              onClick={() => console.log('Clicked memorial QR code')}
               src={srcUrl}
-              className="h-[180px] shrink-0 cursor-pointer"
-              alt="image"
+              className="w-[160px] h-[160px] cursor-pointer hover:scale-105 transition-transform"
+              alt={`QR Code for ${memorial.title}`}
             />
           </Card>
 
-          <div
-            onClick={() => console.log('Clicked memorial item image')}
-            className="hover:text-primary text-sm font-medium text-mono px-2.5 leading-5.5 block cursor-pointer"
-          >
+          <h3 className="text-base font-semibold text-center mb-1 hover:text-primary cursor-pointer transition-colors">
             {memorial.title}
-          </div>
+          </h3>
         </div>
 
-        <div className="flex items-center flex-wrap justify-between gap-5 px-2.5 pb-1">
-          <Badge
-            size="sm"
-            variant={memorial.isConfirmed ? "warning" : "secondary"}
-            shape="circle"
-            className="rounded-full gap-1"
-          >
-            <Star
-              className="text-white -mt-0.5"
-              style={{ fill: 'currentColor' }}
-            />{' '}
-            {'star'}
-          </Badge>
+        {/* Deceased Person Information */}
+        {memorial.deceasedPerson && (
+          <div className="space-y-2 mb-4 p-3 bg-accent/10 rounded-lg border">
+            <div className="text-center mb-2">
+              <p className="font-semibold text-lg">{memorial.deceasedPerson.fullName}</p>
+            </div>
 
-          <div className="flex items-center flex-wrap gap-1.5">
-            <span className="text-sm font-medium text-mono">{ }</span>
+            <div className="grid grid-cols-1 gap-2 text-sm">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-muted-foreground" />
+                <span className="text-muted-foreground">Born:</span>
+                <span className="font-medium">{formatDate(memorial.deceasedPerson.dateOfBirth)}</span>
+              </div>
 
-            <Button
-              size="sm"
-              variant="outline"
-              className="ms-1"
-              onClick={() => console.log('Clicked Button')}
-            >
-              <ShoppingCart /> Add
-            </Button>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-muted-foreground" />
+                <span className="text-muted-foreground">Passed:</span>
+                <span className="font-medium">{formatDate(memorial.deceasedPerson.dateOfDeath)}</span>
+              </div>
+
+              {memorial.deceasedPerson.placeOfDeath && (
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">Place:</span>
+                  <span className="font-medium truncate">{memorial.deceasedPerson.placeOfDeath}</span>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   );
