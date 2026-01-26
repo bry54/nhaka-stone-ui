@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/auth/providers/auth-provider';
+import { UserRoles } from '@/types/contribution.types';
 
 export function HeaderLogo() {
   const { pathname } = useLocation();
@@ -62,7 +63,7 @@ export function HeaderLogo() {
         </span>
 
         {/* Show dropdown only for admin users */}
-        {user?.role === 'admin' ? (
+        {user?.role === UserRoles.ADMIN ? (
           <DropdownMenu>
             <DropdownMenuTrigger className="cursor-pointer text-mono font-medium flex items-center gap-2">
               {selectedMenuItem?.title || 'Store - Client'}

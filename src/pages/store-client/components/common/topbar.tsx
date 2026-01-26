@@ -1,14 +1,13 @@
 import { UserDropdownMenu } from '@/partials/topbar/user-dropdown-menu';
-import { Heart, Search, ShoppingCart, UserCircle } from 'lucide-react';
+import { ShoppingCart, UserCircle } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useStoreClient } from '../context';
 
 export function StoreClientTopbar() {
   const { pathname } = useLocation();
-  const { showCartSheet, showWishlistSheet, getCartCount, getCartTotal } = useStoreClient();
+  const { showCartSheet, getCartCount, getCartTotal } = useStoreClient();
 
   const cartCount = getCartCount();
   const cartTotal = getCartTotal();
@@ -16,24 +15,6 @@ export function StoreClientTopbar() {
   return (
     <>
       <div className="flex items-center gap-1">
-        {!pathname.includes('store-client/home') &&
-          !pathname.includes('store-client/wishlist') &&
-          !pathname.includes('store-client/search-results-grid') &&
-          !pathname.includes('store-client/search-results-list') &&
-          !pathname.includes('store-client/product-details') && (
-            <div className="relative lg:w-[240px] me-3">
-              <Search className="size-4 text-muted-foreground absolute top-1/2 -translate-y-1/2 start-2" />
-              <Input type="text" className="px-7" placeholder="Search shop" />
-              <Badge
-                className="absolute top-1/2 -translate-y-1/2 end-2 gap-1"
-                variant="outline"
-                size="sm"
-              >
-                ⌘ K
-              </Badge>
-            </div>
-          )}
-
         <UserDropdownMenu
           trigger={
             <Button
@@ -47,17 +28,6 @@ export function StoreClientTopbar() {
             </Button>
           }
         />
-
-        <Button
-          variant="ghost"
-          size="lg"
-          mode="icon"
-          shape="circle"
-          onClick={showWishlistSheet}
-          className="hover:text-primary"
-        >
-          <Heart className="size-5!" />
-        </Button>
 
         {/* Cart */}
         <div className="flex items-center gap-1">

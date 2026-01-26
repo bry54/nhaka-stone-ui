@@ -1,10 +1,7 @@
 import { StoreClientTopbar } from '@/pages/store-client/components/common/topbar';
-import { NotificationsSheet } from '@/partials/topbar/notifications-sheet';
 import { UserDropdownMenu } from '@/partials/topbar/user-dropdown-menu';
-import { MessageSquareDot } from 'lucide-react';
 import { useLocation } from 'react-router';
 import { toAbsoluteUrl } from '@/lib/helpers';
-import { Button } from '@/components/ui/button';
 
 export function HeaderTopbar() {
   const { pathname } = useLocation();
@@ -15,21 +12,6 @@ export function HeaderTopbar() {
         <StoreClientTopbar />
       ) : (
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-3">
-            <NotificationsSheet
-              trigger={
-                <Button
-                  variant="ghost"
-                  mode="icon"
-                  size="sm"
-                  shape="circle"
-                  className="size-9"
-                >
-                  <MessageSquareDot className="size-4.5!" />
-                </Button>
-              }
-            />
-          </div>
           <UserDropdownMenu
             trigger={
               <img
