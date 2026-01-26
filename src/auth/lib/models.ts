@@ -1,3 +1,5 @@
+import { UserRoles } from "@/types/contribution.types";
+
 // Define UUID type for consistent usage
 export type UUID = string;
 
@@ -17,7 +19,7 @@ export interface UserModel {
   firstName?: string;
   lastName?: string;
   fullName?: string;
-  role?: string;
+  role?: UserRoles;
   allowAccess?: boolean;
   avatar?: string;
 }

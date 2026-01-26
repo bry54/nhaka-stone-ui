@@ -11,6 +11,11 @@ export enum ContributionType {
     VIDEO = 'VIDEO',
 }
 
+export enum UserRoles {
+    ADMIN = 'admin',
+    CLIENT = 'client',
+}
+
 export interface IContribution {
     id: string;
     memorialId: string;

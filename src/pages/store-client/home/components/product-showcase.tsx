@@ -3,6 +3,7 @@ import { User, PenSquare, Image, MessageSquare, Check, Minus, Plus, QrCode } fro
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useStoreClient, CartItem } from '../../components/context';
+import { toast } from 'sonner';
 
 export function ProductShowcase() {
     const [quantity, setQuantity] = useState(1);
@@ -34,6 +35,7 @@ export function ProductShowcase() {
             quantity: quantity,
         };
         handleAddToCart(cartItem);
+        toast.success(`${quantity} ${quantity === 1 ? 'Medallion' : 'Medallions'} added to cart`);
     };
 
     return (

@@ -95,11 +95,8 @@ export function SignInPage() {
       // Sign in using the auth context
       await login(values.email, values.password);
 
-      // Get the 'next' parameter from URL if it exists
-      const nextPath = searchParams.get('next') || '/';
-
-      // Use navigate for navigation
-      navigate(nextPath);
+      // Always redirect to "/" which will handle role-based routing
+      navigate('/');
     } catch (err) {
       console.error('Unexpected sign-in error:', err);
       setError(

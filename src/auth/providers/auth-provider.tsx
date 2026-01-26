@@ -46,10 +46,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				localStorage.setItem(AUTH_LOCAL_STORAGE_KEY, JSON.stringify(authData));
 
 				const userData: UserModel = {
-					id: '1',
+					id: data.id,
 					email: data.email,
 					fullName: data.fullName,
 					role: data.role,
+					allowAccess: data.allowAccess
 				};
 				setUser(userData);
 			}
