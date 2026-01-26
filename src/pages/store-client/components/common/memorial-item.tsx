@@ -1,10 +1,11 @@
-import { ShoppingCart, CheckCircle2, Globe, QrCode, Calendar, MapPin } from 'lucide-react';
+import { ShoppingCart, CheckCircle2, Globe, QrCode, Calendar, MapPin, MessageSquare, Settings } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import QRCodeLib from 'qrcode'
+import QRCodeLib from 'qrcode';
 import { IMemorial } from '@/types/memorial.types';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 
 interface ICard2Props {
@@ -12,7 +13,7 @@ interface ICard2Props {
 }
 
 export function MemorialItem({ memorial }: ICard2Props) {
-
+  const navigate = useNavigate();
   const [srcUrl, setSrcUrl] = useState('no')
 
   const opts = {
@@ -44,6 +45,15 @@ export function MemorialItem({ memorial }: ICard2Props) {
     const date = new Date(dateString)
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
   }
+
+  const handleViewContributions = () => {
+    navigate(`/store-client/memorial-reviews?memorialId=${memorial.id}`);
+  };
+
+  const handleConfigure = () => {
+    // TODO: Implement configuration functionality
+    console.log('Configure memorial:', memorial.id);
+  };
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
@@ -129,6 +139,29 @@ export function MemorialItem({ memorial }: ICard2Props) {
             </div>
           </div>
         )}
+
+        {/* Action Buttons */}
+        <div className="flex gap-2 pt-3 border-t">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleViewContributions}
+            className="flex-1 gap-2"
+          >
+            <MessageSquare className="w-4 h-4" />
+            View Contributions
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleConfigure}
+            disabled
+            className="flex-1 gap-2"
+          >
+            <Settings className="w-4 h-4" />
+            Configure
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

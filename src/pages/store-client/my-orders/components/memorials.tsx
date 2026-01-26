@@ -198,7 +198,7 @@ export function Memorials({ memorialPurchaseId }: MemorialsListProps) {
             onCheckedChange={handleToggleConfirmation}
           />
           <Label htmlFor="confirmation-toggle" className="text-sm cursor-pointer">
-            {showConfirmed ? 'Confirmed' : 'Unconfirmed'}
+            {showConfirmed ? 'In Use' : 'Not In Use'}
           </Label>
         </div>
       </div>

@@ -1,0 +1,16 @@
+{
+  "USER.MENU.PUBLIC_PROFILE": "Nzimbo Yangu Kuruzhinji",
+  "USER.MENU.MY_PROFILE": "Nzimbo Yangu",
+  "USER.MENU.MY_ACCOUNT": "Akaundi",
+  "USER.MENU.GET_STARTED": "Mavambo",
+  "USER.MENU.BILLING": "Mibhadharo",
+  "USER.MENU.SECURITY": "Dziviriro",
+  "USER.MENU.MEMBERS_&_ROLES": "Vashandi neMabasa",
+  "USER.MENU.INTEGRATIONS": "Mibatanidza",
+  "USER.MENU.NOTIFICATIONS": "Zviziviso",
+  "USER.MENU.DEV_FORUM": "Vagadziri",
+  "USER.MENU.PAYMENT_&_SUBSCRIPTION_INFO": "Mibhadharo",
+  "USER.MENU.DARK_MODE": "Murima",
+  "USER.MENU.LOGOUT": "Buda",
+  "USER.MENU.LANGUAGE": "Mitauro"
+}
