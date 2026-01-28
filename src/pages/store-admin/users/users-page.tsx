@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, useRef } from 'react';
 import {
   Toolbar,
   ToolbarActions,
@@ -8,8 +8,15 @@ import {
 import { Button } from '@/components/ui/button';
 import { Container } from '@/components/common/container';
 import { UsersContent } from '.';
+import { SystemUsersRef } from './components';
 
 export function UsersPage() {
+  const usersRef = useRef<SystemUsersRef>(null);
+
+  const handleAddUser = () => {
+    usersRef.current?.openAddUserSheet();
+  };
+
   return (
     <Fragment>
       <Container>
@@ -18,12 +25,12 @@ export function UsersPage() {
             <ToolbarPageTitle text="System Users" />
           </ToolbarHeading>
           <ToolbarActions>
-            <Button variant="primary">New User</Button>
+            <Button variant="primary" onClick={handleAddUser}>New User</Button>
           </ToolbarActions>
         </Toolbar>
       </Container>
       <Container>
-        <UsersContent />
+        <UsersContent ref={usersRef} />
       </Container>
     </Fragment>
   );

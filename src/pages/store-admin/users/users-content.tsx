@@ -1,9 +1,12 @@
-import { SystemUsers } from './components';
+import { forwardRef } from 'react';
+import { SystemUsers, SystemUsersRef } from './components';
 
-export function UsersContent() {
+export const UsersContent = forwardRef<SystemUsersRef>((_props, ref) => {
   return (
     <div className="grid gap-5 lg:gap-7.5">
-      <SystemUsers />
+      <SystemUsers ref={ref} />
     </div>
   );
-}
+});
+
+UsersContent.displayName = 'UsersContent';
