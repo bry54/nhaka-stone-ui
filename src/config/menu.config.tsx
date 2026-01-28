@@ -1,17 +1,6 @@
-import {
-  Bolt,
-  Codepen,
-  LayoutGrid,
-  ScrollText,
-  Settings,
-  Shield,
-  ShieldUser,
-  ShoppingCart,
-  Theater,
-  UserCircle,
-  Users,
-} from 'lucide-react';
+import { Bolt, Codepen, LayoutGrid, ScrollText, Settings, ShieldUser, Theater, UserCircle, Users } from 'lucide-react';
 import { type MenuConfig } from './types';
+
 
 export const MENU_SIDEBAR: MenuConfig = [
   {
@@ -365,7 +354,9 @@ export const MENU_SIDEBAR_CUSTOM: MenuConfig = [
     title: 'Store - Admin',
     icon: Users,
     children: [
-      { title: 'Home', path: '/store-client/home' },
+      { title: 'Home', path: '/store-admin/home' },
+      { title: 'Users', path: '/store-admin/users' },
+      { title: 'Orders', path: '/store-admin/orders' },
     ],
   },
 ];
