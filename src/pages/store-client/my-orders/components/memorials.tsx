@@ -113,35 +113,6 @@ export function Memorials({ memorialPurchaseId }: MemorialsListProps) {
     />
   );
 
-  if (isLoading && memorials.length === 0) {
-    return (
-      <div className="flex justify-center py-10">
-        <Loader2 className="animate-spin h-8 w-8 text-primary" />
-      </div>
-    );
-  }
-
-  if (!isLoading && memorials.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
-        <p>No orders found.</p>
-        <Button
-          variant="ghost"
-          onClick={() =>
-            fetchMemorials({
-              pageIndex: 0,
-              pageSize: pagination.pageSize,
-              sorting,
-              searchQuery: '',
-            })
-          }
-        >
-          Refresh
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">
@@ -203,11 +174,34 @@ export function Memorials({ memorialPurchaseId }: MemorialsListProps) {
         </div>
       </div>
 
-      <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-2">
-        {memorials.map((item, index) => {
-          return renderItem(item, index);
-        })}
-      </div>
+      {isLoading && memorials.length === 0 ? (
+        <div className="flex justify-center py-10">
+          <Loader2 className="animate-spin h-8 w-8 text-primary" />
+        </div>
+      ) : !isLoading && memorials.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
+          <p>{showConfirmed ? 'No confirmed memorials found.' : 'No unconfirmed memorials found.'}</p>
+          <Button
+            variant="ghost"
+            onClick={() =>
+              fetchMemorials({
+                pageIndex: 0,
+                pageSize: pagination.pageSize,
+                sorting,
+                searchQuery: '',
+              })
+            }
+          >
+            Refresh
+          </Button>
+        </div>
+      ) : (
+        <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-2">
+          {memorials.map((item, index) => {
+            return renderItem(item, index);
+          })}
+        </div>
+      )}
     </div>
   );
 }
