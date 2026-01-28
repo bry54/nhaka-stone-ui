@@ -4,9 +4,7 @@ import {
   LayoutGrid,
   ScrollText,
   Settings,
-  Shield,
   ShieldUser,
-  ShoppingCart,
   Theater,
   UserCircle,
   Users,
@@ -365,7 +363,8 @@ export const MENU_SIDEBAR_CUSTOM: MenuConfig = [
     title: 'Store - Admin',
     icon: Users,
     children: [
-      { title: 'Home', path: '/store-client/home' },
+      { title: 'Home', path: '/store-admin/home' },
+      { title: 'Users', path: '/store-admin/users' },
     ],
   },
 ];
