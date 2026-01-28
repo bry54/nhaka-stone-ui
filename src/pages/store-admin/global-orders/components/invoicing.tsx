@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import {
   Column,
   ColumnDef,
@@ -11,8 +11,11 @@ import {
   SortingState,
   useReactTable,
 } from '@tanstack/react-table';
-import { Download, Settings2 } from 'lucide-react';
+import { Download, Settings2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import api from '@/lib/api';
+import { IFetchOptions, IGetManyResponse } from '@/lib/generic-interfaces';
+import { PurchaseData } from '@/types/purchase.types';
 import { Badge, BadgeProps } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -39,213 +42,100 @@ interface IColumnFilterProps<TData, TValue> {
   column: Column<TData, TValue>;
 }
 
-interface IData {
-  id: string; // Use string for ID
-  invoice: string;
-  label: string;
-  status: string;
-  date: string;
-  dueDate: string;
-  amount: string;
+interface InvoicingProps {
+  userId?: string;
 }
 
-const data: IData[] = [
-  {
-    id: '1', // Unique ID as a string
-    invoice: 'Invoice-2024-xd912c',
-    label: 'Upcoming',
-    status: 'warning',
-    date: '6 Aug, 2024',
-    dueDate: 'HR Dept', // Changed to date
-    amount: '$24.00',
-  },
-  {
-    id: '2',
-    invoice: 'Invoice-2024-rq857m',
-    label: 'Paid',
-    status: 'success',
-    date: '17 Jun, 2024',
-    dueDate: '6 Aug, 2024',
-    amount: '$29.99',
-  },
-  {
-    id: '3',
-    invoice: 'Invoice-2024-jk563z',
-    label: 'Paid',
-    status: 'success',
-    date: '30 Apr, 2024',
-    dueDate: '6 Aug, 2024',
-    amount: '$24.00',
-  },
-  {
-    id: '4',
-    invoice: 'Invoice-2024-hg234x',
-    label: 'Declined',
-    status: 'destructive',
-    date: '21 Apr, 2024',
-    dueDate: '6 Aug, 2024',
-    amount: '$6.59',
-  },
-  {
-    id: '5',
-    invoice: 'Invoice-2024-lp098y',
-    label: 'Paid',
-    status: 'success',
-    date: '14 Mar, 2024',
-    dueDate: '6 Aug, 2024',
-    amount: '$79.00',
-  },
-  {
-    id: '6',
-    invoice: 'Invoice-2024-q196l',
-    label: 'Paid',
-    status: 'success',
-    date: '08 Jan, 2024',
-    dueDate: '6 Aug, 2024',
-    amount: '$257.00',
-  },
-  {
-    id: '7',
-    invoice: 'Invoice-2024-m113s',
-    label: 'Upcoming',
-    status: 'warning',
-    date: '07 Nov, 2024',
-    dueDate: 'Design Dept', // Changed to date
-    amount: '$67.00',
-  },
-  {
-    id: '8',
-    invoice: 'Invoice-2024-u859c',
-    label: 'Declined',
-    status: 'destructive',
-    date: '16 May, 2024',
-    dueDate: '07 Nov, 2024',
-    amount: '$494.00',
-  },
-  {
-    id: '9',
-    invoice: 'Invoice-2024-m803g',
-    label: 'Paid',
-    status: 'success',
-    date: '16 Mar, 2024',
-    dueDate: '16 Mar, 2024',
-    amount: '$142.00',
-  },
-  {
-    id: '10',
-    invoice: 'Invoice-2024-r204u',
-    label: 'Paid',
-    status: 'success',
-    date: '25 Mar, 2024',
-    dueDate: '25 Mar, 2024',
-    amount: '$35.00',
-  },
-  {
-    id: '11',
-    invoice: 'Invoice-2024-b907a',
-    label: 'Paid',
-    status: 'success',
-    date: '12 Feb, 2024',
-    dueDate: '12 Feb, 2024',
-    amount: '$59.99',
-  },
-  {
-    id: '12',
-    invoice: 'Invoice-2024-n567k',
-    label: 'Upcoming',
-    status: 'warning',
-    date: '01 Mar, 2024',
-    dueDate: 'Marketing Dept', // Changed to date
-    amount: '$150.00',
-  },
-  {
-    id: '13',
-    invoice: 'Invoice-2024-k453j',
-    label: 'Declined',
-    status: 'destructive',
-    date: '03 Apr, 2024',
-    dueDate: '03 Apr, 2024',
-    amount: '$89.50',
-  },
-  {
-    id: '14',
-    invoice: 'Invoice-2024-d981q',
-    label: 'Paid',
-    status: 'success',
-    date: '20 Feb, 2024',
-    dueDate: '20 Feb, 2024',
-    amount: '$200.00',
-  },
-  {
-    id: '15',
-    invoice: 'Invoice-2024-p846y',
-    label: 'Paid',
-    status: 'success',
-    date: '15 May, 2024',
-    dueDate: '15 May, 2024',
-    amount: '$75.00',
-  },
-  {
-    id: '16',
-    invoice: 'Invoice-2024-z190x',
-    label: 'Upcoming',
-    status: 'warning',
-    date: '10 Jun, 2024',
-    dueDate: 'Finance Dept', // Changed to date
-    amount: '$130.00',
-  },
-  {
-    id: '17',
-    invoice: 'Invoice-2024-l892v',
-    label: 'Paid',
-    status: 'success',
-    date: '25 Jan, 2024',
-    dueDate: '25 Jan, 2024',
-    amount: '$100.00',
-  },
-  {
-    id: '18',
-    invoice: 'Invoice-2024-t675c',
-    label: 'Declined',
-    status: 'destructive',
-    date: '18 Jul, 2024',
-    dueDate: '18 Jul, 2024',
-    amount: '$45.00',
-  },
-  {
-    id: '19',
-    invoice: 'Invoice-2024-w432r',
-    label: 'Paid',
-    status: 'success',
-    date: '09 Aug, 2024',
-    dueDate: '09 Aug, 2024',
-    amount: '$60.00',
-  },
-  {
-    id: '20',
-    invoice: 'Invoice-2024-e765n',
-    label: 'Upcoming',
-    status: 'warning',
-    date: '12 Oct, 2024',
-    dueDate: 'IT Dept', // Changed to date
-    amount: '$500.00',
-  },
-  // Add the rest of the items in the same pattern...
-];
-
-const Invoicing = () => {
+const Invoicing = ({ userId }: InvoicingProps = {}) => {
+  const [purchases, setPurchases] = useState<PurchaseData[]>([]);
+  const [totalPurchases, setTotalPurchases] = useState(0);
+  const [pageCount, setPageCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 5,
   });
   const [rowSelection] = useState<RowSelectionState>({});
   const [sorting, setSorting] = useState<SortingState>([
-    { id: 'date', desc: true },
+    { id: 'createdAt', desc: true },
   ]);
 
-  const ColumnInputFilter = <TData, TValue>({
-    column,
-  }: IColumnFilterProps<TData, TValue>) => {
+  const fetchPurchases = useCallback(async (options: Partial<IFetchOptions>) => {
+    setIsLoading(true);
+    try {
+      const params: Record<string, any> = {
+        page: (options.pageIndex ?? 0) + 1,
+        limit: options.pageSize ?? 5,
+      };
+
+      // Add sorting
+      if (options.sorting && options.sorting.length > 0) {
+        const sortField = options.sorting[0].id;
+        const sortOrder = options.sorting[0].desc ? 'DESC' : 'ASC';
+        //params.sort = `${sortField}|${sortOrder}`;
+      }
+
+      // Add user filter if userId is provided
+      if (userId) {
+        params['filter.customer.id'] = `$eq:${userId}`;
+      }
+
+      const response = await api.get<IGetManyResponse<PurchaseData>>(
+        '/memorial-purchase',
+        { params }
+      );
+
+      setPurchases(response.data.data);
+      setTotalPurchases(response.data.total);
+      setPageCount(response.data.pageCount);
+    } catch (err) {
+      toast.error('Failed to fetch purchases');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    fetchPurchases({
+      pageIndex: pagination.pageIndex,
+      pageSize: pagination.pageSize,
+      sorting,
+    });
+  }, [fetchPurchases, pagination.pageIndex, pagination.pageSize, sorting]);
+
+  const getStatusBadge = (status: string): { label: string; variant: keyof BadgeProps['variant'] } => {
+    switch (status) {
+      case 'completed':
+        return { label: 'Paid', variant: 'success' };
+      case 'pending':
+        return { label: 'Upcoming', variant: 'warning' };
+      case 'failed':
+        return { label: 'Declined', variant: 'destructive' };
+      default:
+        return { label: status, variant: 'default' };
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
+  const formatCurrency = (amount: number, currency: string = 'USD') => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency,
+    }).format(amount);
+  };
+
+  const ColumnInputFilter = <TData, TValue>(
+    { column }: IColumnFilterProps<TData, TValue>
+  ) => {
     return (
       <Input
         placeholder="Filter..."
@@ -257,7 +147,7 @@ const Invoicing = () => {
     );
   };
 
-  const columns = useMemo<ColumnDef<IData>[]>(
+  const columns = useMemo<ColumnDef<PurchaseData>[]>(
     () => [
       {
         accessorKey: 'id',
@@ -273,17 +163,17 @@ const Invoicing = () => {
         },
       },
       {
-        id: 'invoice',
-        accessorFn: (row) => row.invoice,
+        id: 'orderId',
+        accessorFn: (row) => row.orderId,
         header: ({ column }) => (
           <DataGridColumnHeader
-            title="Member"
+            title="Order ID"
             filter={<ColumnInputFilter column={column} />}
             column={column}
           />
         ),
         cell: (info) => {
-          return info.row.original.invoice;
+          return info.row.original.orderId;
         },
         enableSorting: true,
         size: 210,
@@ -292,18 +182,16 @@ const Invoicing = () => {
         },
       },
       {
-        id: 'label',
-        accessorFn: (row) => row.label,
+        id: 'status',
+        accessorFn: (row) => row.payment.status,
         header: ({ column }) => (
           <DataGridColumnHeader title="Status" column={column} />
         ),
         cell: (info) => {
-          const variant = info.row.original
-            .status as keyof BadgeProps['variant'];
-
+          const statusInfo = getStatusBadge(info.row.original.payment.status);
           return (
-            <Badge variant={variant} appearance="light">
-              {info.row.original.label}
+            <Badge variant={statusInfo.variant} appearance="light">
+              {statusInfo.label}
             </Badge>
           );
         },
@@ -314,13 +202,13 @@ const Invoicing = () => {
         },
       },
       {
-        id: 'date',
-        accessorFn: (row) => row.date,
+        id: 'orderDate',
+        accessorFn: (row) => row.orderDate,
         header: ({ column }) => (
           <DataGridColumnHeader title="Date" column={column} />
         ),
         cell: (info) => {
-          return info.row.original.date;
+          return formatDate(info.row.original.orderDate);
         },
         enableSorting: true,
         size: 170,
@@ -329,13 +217,13 @@ const Invoicing = () => {
         },
       },
       {
-        id: 'dueDate',
-        accessorFn: (row) => row.dueDate,
+        id: 'customer',
+        accessorFn: (row) => row.customer.fullName,
         header: ({ column }) => (
-          <DataGridColumnHeader title="Due Date" column={column} />
+          <DataGridColumnHeader title="Customer" column={column} />
         ),
         cell: (info) => {
-          return info.row.original.dueDate;
+          return info.row.original.customer.fullName;
         },
         enableSorting: true,
         size: 170,
@@ -345,12 +233,15 @@ const Invoicing = () => {
       },
       {
         id: 'amount',
-        accessorFn: (row) => row.amount,
+        accessorFn: (row) => row.payment.totalAmount,
         header: ({ column }) => (
           <DataGridColumnHeader title="Amount" column={column} />
         ),
         cell: (info) => {
-          return info.row.original.amount;
+          return formatCurrency(
+            info.row.original.payment.totalAmount,
+            info.row.original.payment.currency
+          );
         },
         enableSorting: true,
         size: 160,
@@ -375,8 +266,6 @@ const Invoicing = () => {
     [],
   );
 
-  const filteredData: IData[] = useMemo(() => data, []);
-
   useEffect(() => {
     const selectedRowIds = Object.keys(rowSelection);
 
@@ -393,9 +282,9 @@ const Invoicing = () => {
 
   const table = useReactTable({
     columns,
-    data: filteredData,
-    pageCount: Math.ceil((filteredData?.length || 0) / pagination.pageSize),
-    getRowId: (row: IData) => row.id,
+    data: purchases,
+    pageCount,
+    getRowId: (row: PurchaseData) => row.id || row.orderId,
     state: {
       pagination,
       sorting,
@@ -406,6 +295,8 @@ const Invoicing = () => {
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    manualPagination: true,
+    manualSorting: true,
   });
 
   const Toolbar = () => {
@@ -430,10 +321,25 @@ const Invoicing = () => {
     );
   };
 
+  if (isLoading && purchases.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Billing and Invoicing</CardTitle>
+        </CardHeader>
+        <CardTable>
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="size-8 animate-spin text-muted-foreground" />
+          </div>
+        </CardTable>
+      </Card>
+    );
+  }
+
   return (
     <DataGrid
       table={table}
-      recordCount={filteredData?.length || 0}
+      recordCount={totalPurchases}
       tableLayout={{
         columnsPinnable: true,
         columnsMovable: true,
