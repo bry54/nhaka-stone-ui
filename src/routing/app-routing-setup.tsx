@@ -5,7 +5,11 @@ import { ErrorRouting } from '@/errors/error-routing';
 import { Demo2Layout } from '@/layouts/demo2/layout';
 import { MemorialPortalPage } from '@/pages/public/memorial-portal';
 import { PublicRouting } from '@/pages/public/public-routing';
-import { DashboardPage, UsersPage } from '@/pages/store-admin';
+import {
+  DashboardPage,
+  GlobalOrdersPage,
+  UsersPage,
+} from '@/pages/store-admin';
 import { MemorialsReviewPage, MyOrdersPage, StoreClientPage } from '@/pages/store-client';
 import { Navigate, Route, Routes } from 'react-router';
 import { UserRoles } from '@/types/contribution.types';
@@ -51,6 +55,7 @@ export function AppRoutingSetup() {
           {/* Admin routes */}
           <Route path="/store-admin/home" element={<DashboardPage />} />
           <Route path="/store-admin/users" element={<UsersPage />} />
+          <Route path="/store-admin/orders" element={<GlobalOrdersPage />} />
         </Route>
       </Route>
 
